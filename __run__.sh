@@ -23,7 +23,7 @@ case "$1" in
              /bin/bash
         ;;
     "jupyter")
-        jupyter notebook \
+        /home/xxyxzxxyzyxxxzxyzxyx/.local/bin/jupyter notebook \
 	    --port=8888 \
 	    --ip=0.0.0.0 \
 	    --allow-root \
