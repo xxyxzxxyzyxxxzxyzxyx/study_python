@@ -9,16 +9,11 @@ from lzma import LZMADecompressor, LZMAError, FORMAT_AUTO
 
 
 def get_requests(pair, year, month, day, fileplace, exectime):
-    urls = [
-        f'https://www.dukascopy.com/datafeed'
-        f'/{pair}/{year}/{month-1:02d}/{day:02d}/{hour:02d}'
-        f'h_ticks.bi5'
-        for hour in range(0, 24)
-    ]
-
     request_day = BytesIO()
 
-    for url in urls:
+    for hour in range(0, 24):
+        url = f'https://www.dukascopy.com/datafeed/{pair}/{year}/{month-1:02d}/{day:02d}/{hour:02d}h_ticks.bi5'
+
         request_hour = BytesIO()
         request = requests.get(url)
         check_request = request.status_code
@@ -41,7 +36,8 @@ def get_requests(pair, year, month, day, fileplace, exectime):
     
         with open(f'{fileplace}/{exectime}.log', 'a') as f:
             writer = csv.writer(f)
-            writer.writerow((url, check_request, check_buffer))
+            writer.writerow((url, year, month, day, hour, check_request, check_buffer))
+
 
     return request_day.getbuffer()
 
@@ -56,6 +52,7 @@ def decomp_buffer(buffer):
         if not buffer:
             break
     
+
     return b''.join(results)
 
 
@@ -92,9 +89,9 @@ def generate_date(date_begin, date_end):
 
 def dukascopy(pair, date_begin, date_end, fileplace):
     exectime = datetime.now().strftime('%Y%m%d%H%M%S')
-    with open(f'{fileplace}/{exectime}.log', 'w') as f:
+    with open(f'{fileplace}/{pair}_{date_begin}_{date_end}_{exectime}.log'.lower(), 'w') as f:
         writer = csv.writer(f)
-        writer.writerow(('request_url', 'status_code', 'buffer_size'))
+        writer.writerow(('request_url', 'year', 'month', 'day', 'hour', 'status_code', 'buffer_size'))
 
     for yyyymmdd in generate_date(date_begin, date_end):
         year = yyyymmdd.year
@@ -103,10 +100,10 @@ def dukascopy(pair, date_begin, date_end, fileplace):
 
         buffer_day = get_requests(pair, year, month, day, fileplace, exectime)
 
-        if 0< len(buffer_day):
+        if 0 < len(buffer_day):
             tokens_day = decomp_buffer(buffer_day)
             write_ticks(pair, year, month, day, fileplace, tokens_day)
         else:
             pass
 
-        time.sleep(1)
+
