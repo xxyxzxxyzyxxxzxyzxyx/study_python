@@ -9,15 +9,23 @@ from lzma import LZMADecompressor, LZMAError, FORMAT_AUTO
 
 
 def get_requests(pair, year, month, day, fileplace, exectime):
+    attempts = 5
     request_day = BytesIO()
 
     for hour in range(0, 24):
         url = f'https://www.dukascopy.com/datafeed/{pair}/{year}/{month-1:02d}/{day:02d}/{hour:02d}h_ticks.bi5'
 
         request_hour = BytesIO()
-        request = requests.get(url)
-        check_request = request.status_code
+        check_request = 0
         check_buffer = 0
+
+        for attempt in range(attempts):
+            try:
+                request = requests.get(url)
+                check_request = request.status_code
+                break
+            except Exception as e:
+                time.sleep(1*attempt)
 
         if check_request == 200:
             for request_buffer in request.iter_content(DEFAULT_BUFFER_SIZE):
@@ -28,6 +36,7 @@ def get_requests(pair, year, month, day, fileplace, exectime):
 
             if 0 < check_buffer:
                 request_day.write(buffer_hour)
+
             else:
                 pass
 
@@ -89,7 +98,7 @@ def generate_date(date_begin, date_end):
 
 def dukascopy(pair, date_begin, date_end, fileplace):
     exectime = datetime.now().strftime('%Y%m%d%H%M%S')
-    with open(f'{fileplace}/{pair}_{date_begin}_{date_end}_{exectime}.log'.lower(), 'w') as f:
+    with open(f'{fileplace}/{exectime}.log'.lower(), 'w') as f:
         writer = csv.writer(f)
         writer.writerow(('request_url', 'year', 'month', 'day', 'hour', 'status_code', 'buffer_size'))
 
