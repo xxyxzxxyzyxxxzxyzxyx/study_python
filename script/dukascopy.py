@@ -45,7 +45,7 @@ def get_requests(pair, year, month, day, fileplace, exectime):
     
         with open(f'{fileplace}/{exectime}.log', 'a') as f:
             writer = csv.writer(f)
-            writer.writerow((url, year, month, day, hour, check_request, check_buffer))
+            writer.writerow((url, year, month, day, hour, check_request, check_buffer, exectime))
 
 
     return request_day.getbuffer()
@@ -100,7 +100,7 @@ def dukascopy(pair, date_begin, date_end, fileplace):
     exectime = datetime.now().strftime('%Y%m%d%H%M%S')
     with open(f'{fileplace}/{exectime}.log'.lower(), 'w') as f:
         writer = csv.writer(f)
-        writer.writerow(('request_url', 'year', 'month', 'day', 'hour', 'status_code', 'buffer_size'))
+        writer.writerow(('request_url', 'year', 'month', 'day', 'hour', 'status_code', 'buffer_size', 'execute_time'))
 
     for yyyymmdd in generate_date(date_begin, date_end):
         year = yyyymmdd.year
