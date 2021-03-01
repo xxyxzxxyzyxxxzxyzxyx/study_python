@@ -75,8 +75,8 @@ def write_ticks(pair, year, month, day, fileplace, tokens):
     elapsed = 0
     dt = datetime(year, month, day)
     if dt.weekday() == 6:
-        dst_begin, dst_end = DST(year)
-        if dst_begin <= dt and dt <= dst_end:
+        dst_begin, dst_end = DST(year).newyork()
+        if dst_begin <= dt and dt < dst_end:
             dt += timedelta(hours=21)
         else:
             dt += timedelta(hours=22)
