@@ -10,7 +10,7 @@ class Datacheck(object):
         self.logs = glob.glob(f'{logdir}/*.log')
 
 
-    def logsummary(self):
+    def latestlogupdate(self):
         try:
             latest = pd.read_csv(self.latest)
         except FileNotFoundError:
@@ -29,7 +29,7 @@ class Datacheck(object):
 
         for logpath in logs:
             log = pd.read_csv(logpath)
-            os.renames(f'{i}', f'{self.logdir}/old/{logpath.split("/").pop()}')
+            os.renames(f'{i}', f'{self.logdir}/__old__/{logpath.split("/").pop()}')
             latest = pd.concat([latest, log])
 
         latestlog = latest.sort_values(
@@ -44,6 +44,12 @@ class Datacheck(object):
 
         latestlog.to_csv(f'{self.logdir}/latest', index=False)
 
-        return latestlog
 
+    def latestlogcheck(self):
+        try:
+            latest = pd.read_csv(self.latest)
+        except FileNotFoundError:
+            print('update latest log first')
 
+    
+    def 
