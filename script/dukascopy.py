@@ -1,3 +1,4 @@
+import sys
 import csv
 import time
 import requests
@@ -7,6 +8,8 @@ from datetime import date, datetime, timedelta
 from io import BytesIO, DEFAULT_BUFFER_SIZE
 from lzma import LZMADecompressor, LZMAError, FORMAT_AUTO
 
+sys.path.append('./')
+from dst import DST
 
 def get_requests(pair, year, month, day, fileplace, exectime):
     attempts = 5
@@ -71,6 +74,15 @@ def write_ticks(pair, year, month, day, fileplace, tokens):
     tokensize = 20
     elapsed = 0
     dt = datetime(year, month, day)
+    if dt.weekday() == 6:
+        dst_begin, dst_end = DST(year).newyork()
+        if dst_begin <= dt and dt < dst_end:
+            dt += timedelta(hours=21)
+        else:
+            dt += timedelta(hours=22)
+    else:
+        pass
+
     for i in range(0, int(len(tokens)/tokensize)):
         token = struct.unpack('!IIIff', tokens[i*tokensize:(i+1)*tokensize])
         et = token[0]

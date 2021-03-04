@@ -1,5 +1,5 @@
 import calendar
-from datetime import date, timedelta
+from datetime import datetime, timedelta
 
 class DST(object):
     def __init__(self, year):
@@ -22,15 +22,15 @@ class DST(object):
     
     def whatdwdate(self, month, dw, whatdw):
         lastday = calendar.monthrange(self.year, month)[1]
-        targedw = self.dwdict[dw.lower()[0:3]]
+        targetdw = self.dwdict[dw.lower()[0:3]]
         dwlist = []
         for i in range(1, lastday+1):
-            if date(self.year, month, i).weekday() == targetdw:
+            if datetime(self.year, month, i).weekday() == targetdw:
                 dwlist.append(i)
             else:
                 pass
             
-        return date(self.year, month, dwlist[self.whatdwdict[whatdw.lower()]])
+        return datetime(self.year, month, dwlist[self.whatdwdict[whatdw.lower()]])
 
     
     def newyork(self):
