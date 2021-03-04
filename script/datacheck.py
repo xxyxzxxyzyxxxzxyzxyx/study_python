@@ -1,6 +1,11 @@
 import os
+import sys
 import glob
+import numpy as np
 import pandas as pd
+
+sys.path.append('./')
+from dukascopy import dukascopy
 
 
 class Datacheck(object):
@@ -45,11 +50,22 @@ class Datacheck(object):
         latestlog.to_csv(f'{self.logdir}/latest', index=False)
 
 
-    def latestlogcheck(self):
+    def latestlogcheck(self, pair):
         try:
             latest = pd.read_csv(self.latest)
+            retry = latest[
+                (latest.status_code != 200) & (latest/status_code != 404)
+            ][
+                ['year', 'month', 'day']
+            ].drop_duplicates(
+                keep = 'last'
+            ).reset_index(
+                drop = True
+            ).to_numpy()
+
+            for i in retry:
+                target = f'{i[0]}{i[1]:02d}{i[2]:02d}'
+                dukascopy(pair, target, target, self.logdir)
+
         except FileNotFoundError:
             print('update latest log first')
-
-    
-    def 
